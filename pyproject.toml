@@ -41,7 +41,7 @@ redpoint = "redpoint.cli:main"
 redpoint-gui = "redpoint.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "pyinstaller>=6.10"]
+dev = ["pytest>=8", "ruff>=0.6", "pyinstaller>=6.10", "pillow>=10"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/redpoint"]

@@ -1,0 +1,84 @@
+debconf: delaying package configuration, since apt-utils is not installed
+downloading uv 0.9.9 x86_64-unknown-linux-gnu
+icons in build/icons
+110 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.10
+110 INFO: Python: 3.12.12
+110 INFO: Platform: Linux-7.2.10-1-cachyos-x86_64-with-glibc2.35
+110 INFO: Python environment: /tmp/redpoint-build-venv
+111 INFO: Removing temporary files and cleaning cache in /root/.cache/pyinstaller
+112 INFO: Module search paths (PYTHONPATH):
+['/root/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python312.zip',
+ '/root/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12',
+ '/root/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/lib-dynload',
+ '/tmp/redpoint-build-venv/lib/python3.12/site-packages',
+ '/src/src',
+ '/src/packaging',
+ '/src/src']
+179 INFO: Appending 'binaries' from .spec
+180 INFO: checking Analysis
+180 INFO: Building Analysis because Analysis-00.toc is non existent
+180 INFO: Looking for Python shared library...
+183 INFO: Using Python shared library: /root/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/libpython3.12.so.1.0
+183 INFO: Running Analysis Analysis-00.toc
+183 INFO: Target bytecode optimization level: 0
+183 INFO: Initializing module dependency graph...
+184 INFO: Initializing module graph hook caches...
+187 INFO: Analyzing modules for base_library.zip ...
+398 INFO: Processing standard module hook 'hook-heapq.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+524 INFO: Processing standard module hook 'hook-encodings.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+744 INFO: Processing standard module hook 'hook-math.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+1221 INFO: Processing standard module hook 'hook-pickle.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+1867 INFO: Caching module dependency graph...
+1884 INFO: Analyzing /src/packaging/entry.py
+1919 INFO: Processing standard module hook 'hook-platform.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2215 INFO: Processing standard module hook 'hook-PyQt6.QtCore.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2270 INFO: Processing standard module hook 'hook-PyQt6.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2561 INFO: Processing standard module hook 'hook-PyQt6.QtGui.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3149 INFO: Processing standard module hook 'hook-PyQt6.QtWidgets.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3286 INFO: Processing standard module hook 'hook-PyQt6.QtNetwork.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3386 INFO: Processing standard module hook 'hook-xml.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3404 INFO: Processing standard module hook 'hook-_ctypes.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3498 INFO: Processing module hooks (post-graph stage)...
+3510 INFO: Processing standard module hook 'hook-PyQt6.QtDBus.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3710 INFO: Performing binary vs. data reclassification (152 entries)
+3808 INFO: Looking for ctypes DLLs
+3842 INFO: Analyzing run-time hooks ...
+3844 INFO: Including run-time hook 'pyi_rth_inspect.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks'
+3849 INFO: Including run-time hook 'pyi_rth_pyqt6.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks'
+3850 INFO: Processing pre-find-module-path hook 'hook-_pyi_rth_utils.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks/pre_find_module_path'
+3851 INFO: Processing standard module hook 'hook-_pyi_rth_utils.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3854 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks'
+3860 INFO: Creating base_library.zip...
+3875 INFO: Looking for dynamic libraries
+4447 WARNING: Library not found: could not resolve 'libgdk-3.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libcairo.so.2', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libpango-1.0.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libcairo-gobject.so.2', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libgtk-3.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libpangocairo-1.0.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libatk-1.0.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libgdk_pixbuf-2.0.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4447 WARNING: Library not found: could not resolve 'libharfbuzz.so.0', dependency of '/tmp/redpoint-build-venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platformthemes/libqgtk3.so'.
+4454 INFO: Warnings written to /src/build/pyi-work/redpoint/warn-redpoint.txt
+4459 INFO: Graph cross-reference written to /src/build/pyi-work/redpoint/xref-redpoint.html
+4467 INFO: checking PYZ
+4467 INFO: Building PYZ because PYZ-00.toc is non existent
+4467 INFO: Building PYZ (ZlibArchive) /src/build/pyi-work/redpoint/PYZ-00.pyz
+4652 INFO: Building PYZ (ZlibArchive) /src/build/pyi-work/redpoint/PYZ-00.pyz completed successfully.
+4653 WARNING: Ignoring icon; supported only on Windows and macOS!
+4665 INFO: checking PKG
+4665 INFO: Building PKG because PKG-00.toc is non existent
+4665 INFO: Building PKG (CArchive) redpoint.pkg
+4675 INFO: Building PKG (CArchive) redpoint.pkg completed successfully.
+4675 INFO: Bootloader /tmp/redpoint-build-venv/lib/python3.12/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run
+4675 INFO: checking EXE
+4675 INFO: Building EXE because EXE-00.toc is non existent
+4675 INFO: Building EXE from EXE-00.toc
+4675 INFO: Copying bootloader EXE to /src/build/pyi-work/redpoint/redpoint
+4676 INFO: Appending PKG archive to custom ELF section in EXE
+4679 INFO: Building EXE from EXE-00.toc completed successfully.
+4680 INFO: checking COLLECT
+4680 INFO: Building COLLECT because COLLECT-00.toc is non existent
+4680 INFO: Building COLLECT COLLECT-00.toc
+4740 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+4741 INFO: Build complete! The results are available in: /src/build/pyi-dist

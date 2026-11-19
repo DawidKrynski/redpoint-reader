@@ -52,6 +52,7 @@ class Redpoint(QObject):
         self.reader.winId()  # create the native window now so showing it later is instant
         self.grabber = SelectionGrabber(self.platform_name)
         self.grabber.ready.connect(self.reader.start)
+        self.grabber.ready.connect(lambda t, src: log(f"text from {src}: {len(t)} chars {t[:60]!r}"))
         self.grabber.needs_focus.connect(self.reader.wait_for_text)
         self.reader.activated.connect(self.grabber.read_focused)
         self.settings: SettingsWindow | None = None
@@ -120,6 +121,7 @@ class Redpoint(QObject):
         log(f"shortcut {spec}: {result} {detail}".strip())
 
     def on_hotkey(self) -> None:
+        log("shortcut pressed")
         if self.reader.isVisible():
             self.reader.dismiss()
         else:
@@ -215,7 +217,12 @@ class Server(QObject):
 
 
 def log(line: str) -> None:
-    if os.environ.get("REDPOINT_DEBUG"):
+    """Debug log: REDPOINT_DEBUG=1 prints to stderr, REDPOINT_LOG=path appends to a file."""
+    path = os.environ.get("REDPOINT_LOG")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(f"{time.strftime('%H:%M:%S')} {line}\n")
+    if os.environ.get("REDPOINT_DEBUG") and sys.stderr:
         print(f"[redpoint] {line}", file=sys.stderr, flush=True)
 
 
