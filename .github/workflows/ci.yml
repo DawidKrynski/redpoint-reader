@@ -43,3 +43,31 @@ jobs:
           name: selftest-${{ matrix.os }}-${{ matrix.python }}
           path: selftest-out
           if-no-files-found: ignore
+  macos-e2e:
+    # Best effort: needs the runner to allow synthetic input (Accessibility). Shows how far a
+    # real Mac flow gets: TextEdit selection -> Ctrl+Option+R -> Cmd+C -> reading.
+    runs-on: macos-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --extra dev
+      - name: Shortcut fired by System Events
+        run: |
+          REDPOINT_TEST_PRESS="osascript -e 'tell application \"System Events\" to keystroke \"r\" using {control down, option down}'" \
+          uv run redpoint --self-test out-press
+      - name: Selection copied from TextEdit
+        run: |
+          printf 'Selected in TextEdit on macOS' > /tmp/sample.txt
+          open -a TextEdit /tmp/sample.txt
+          sleep 3
+          osascript -e 'tell application "TextEdit" to activate' -e 'tell application "System Events" to keystroke "a" using {command down}'
+          sleep 1
+          REDPOINT_EXPECT_SELECTION='Selected in TextEdit on macOS' uv run redpoint --self-test out-selection
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-e2e
+          path: out-*
