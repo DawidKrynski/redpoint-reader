@@ -61,6 +61,56 @@ class SelectionGrabber(QObject):
         super().__init__()
         self.platform_name = platform_name
         self._from_thread.connect(self.ready)
+        # When PRIMARY and CLIPBOARD changed last. Clipboard managers (Klipper) keep an old
+        # PRIMARY alive and some apps never set PRIMARY, so a newer copy must win.
+        self.changed = {"primary": 0.0, "clipboard": 0.0}
+        self._watchers: list = []
+        if sys.platform.startswith("linux"):
+            self._start_watch()
+
+    def _start_watch(self) -> None:
+        if self.wayland:
+            exe = wl_paste_path()
+            if not exe:
+                return
+            from PyQt6.QtCore import QProcess
+
+            for kind in ("primary", "clipboard"):
+                proc = QProcess(self)
+                args = (["--primary"] if kind == "primary" else []) + ["--watch", "echo"]
+                first = [True]
+
+                def on_output(kind=kind, proc=proc, first=first):
+                    proc.readAllStandardOutput()
+                    if first[0]:  # the watcher reports the current content once at start
+                        first[0] = False
+                        return
+                    self.changed[kind] = time.monotonic()
+
+                proc.readyReadStandardOutput.connect(on_output)
+                proc.start(exe, args)
+                self._watchers.append(proc)
+        else:
+
+            def on_change(mode):
+                kind = "primary" if mode == QClipboard.Mode.Selection else "clipboard"
+                self.changed[kind] = time.monotonic()
+
+            QGuiApplication.clipboard().changed.connect(on_change)
+
+    def stop(self) -> None:
+        for proc in self._watchers:
+            proc.kill()
+            proc.waitForFinished(500)
+        self._watchers.clear()
+
+    def _pick(self, primary: str, clipboard: str) -> None:
+        if clipboard.strip() and (self.changed["clipboard"] > self.changed["primary"] or not primary.strip()):
+            self.ready.emit(clipboard, "clipboard")
+        elif primary.strip():
+            self.ready.emit(primary, "selection")
+        else:
+            self.ready.emit("", "clipboard")
 
     @property
     def wayland(self) -> bool:
@@ -75,14 +125,15 @@ class SelectionGrabber(QObject):
         elif sys.platform == "darwin":
             self._mac_start()
         elif self.wayland:
-            text = _run_wl_paste(primary=True)
-            if text and text.strip():
-                self.ready.emit(text, "selection")
+            primary = _run_wl_paste(primary=True)
+            if primary is None:
+                # No wl-paste: without focus Qt sees neither PRIMARY nor CLIPBOARD on Wayland.
+                self.needs_focus.emit()
                 return
-            # Without focus Qt sees neither PRIMARY nor CLIPBOARD on Wayland.
-            self.needs_focus.emit()
+            self._pick(primary, _run_wl_paste(primary=False) or "")
         else:
-            self._finish(QGuiApplication.clipboard().text(QClipboard.Mode.Selection))
+            cb = QGuiApplication.clipboard()
+            self._pick(cb.text(QClipboard.Mode.Selection), cb.text(QClipboard.Mode.Clipboard))
 
     def read_focused(self, attempts: int = 10) -> None:
         """Called once our window is active; the compositor's selection offer may lag a bit."""

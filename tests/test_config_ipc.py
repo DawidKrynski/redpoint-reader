@@ -35,3 +35,24 @@ def test_cli_messages(tmp_path):
     assert build_message(parse_args([])) == {"cmd": "settings"}
     assert build_message(parse_args(["--background"])) == {"cmd": "noop"}
     assert build_message(parse_args([str(f)])) == {"cmd": "text", "text": "zażółć"}
+
+
+def test_newer_clipboard_wins(monkeypatch):
+    import os
+
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    from PyQt6.QtWidgets import QApplication
+
+    from redpoint.selection import SelectionGrabber
+
+    app = QApplication.instance() or QApplication([])  # noqa: F841
+    g = SelectionGrabber("offscreen")
+    got = []
+    g.ready.connect(lambda t, s: got.append((t, s)))
+    g.changed = {"primary": 1.0, "clipboard": 2.0}
+    g._pick("old selection", "fresh copy")
+    g.changed = {"primary": 3.0, "clipboard": 2.0}
+    g._pick("new selection", "fresh copy")
+    g._pick("", "only clipboard")
+    g.stop()
+    assert got == [("fresh copy", "clipboard"), ("new selection", "selection"), ("only clipboard", "clipboard")]

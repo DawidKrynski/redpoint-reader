@@ -171,6 +171,7 @@ class Redpoint(QObject):
             self.quit()
 
     def quit(self) -> None:
+        self.grabber.stop()
         try:
             self.backend.unregister()
         except Exception:  # noqa: BLE001
@@ -327,6 +328,7 @@ def self_test(outdir: str) -> int:
             app.processEvents()
             time.sleep(0.02)
         reader.dismiss()
+        grabber.stop()
         report["selection"] = result[0] if result else None
         report["selection_ok"] = bool(result) and result[0][0].strip() == expected.strip()
 
