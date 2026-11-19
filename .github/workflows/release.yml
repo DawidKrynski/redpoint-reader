@@ -1,0 +1,75 @@
+name: Release builds
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONUTF8: "1"
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the AppImage in Ubuntu 22.04 (old glibc = works on more distributions)
+        run: docker run --rm -v "$PWD":/src -w /src -e HOME=/root ubuntu:22.04 packaging/build-appimage.sh
+      - name: Test the AppImage on several distributions
+        run: sudo chown -R "$(id -u)" build dist && tools/test_distros.sh dist/*.AppImage build/distro-tests
+      - name: Wheel and source archive
+        run: |
+          pipx run build --outdir dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: ./tools/build_windows.ps1 -Python 3.12
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --extra dev
+      - run: uv run pytest -q
+      - run: uv run python tools/make_icons.py build/icons
+      - run: uv run pyinstaller --noconfirm --clean --distpath build/pyi-dist --workpath build/pyi-work packaging/redpoint.spec
+      - name: Self-test the app bundle
+        run: build/pyi-dist/Redpoint.app/Contents/MacOS/redpoint --self-test build/selftest
+      - name: Zip the app
+        run: |
+          VERSION=$(uv run python -c "import redpoint; print(redpoint.__version__)")
+          mkdir -p dist
+          ditto -c -k --keepParent build/pyi-dist/Redpoint.app "dist/Redpoint-$VERSION-macos-arm64.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*
+  release:
+    needs: [linux, windows, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Checksums
+        run: cd out && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - name: Draft release with all files (published by hand)
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" out/* --draft --title "Redpoint ${GITHUB_REF_NAME#v}" --notes "Draft" --repo "$GITHUB_REPOSITORY"

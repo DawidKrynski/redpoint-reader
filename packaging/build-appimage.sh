@@ -38,6 +38,11 @@ rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/share/applications" "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 cp -a build/pyi-dist/redpoint "$APPDIR/usr/lib-redpoint"
 ln -s ../lib-redpoint/redpoint "$APPDIR/usr/bin/redpoint"
+# Same idea as the AppImage excludelist: libraries every desktop has and that must match the
+# host (fontconfig reads the host's config files, GPU drivers need the host's libstdc++).
+for lib in libfontconfig.so.1 libfreetype.so.6 libX11.so.6 libX11-xcb.so.1 libdbus-1.so.3 libstdc++.so.6 libgcc_s.so.1; do
+  rm -f "$APPDIR/usr/lib-redpoint/_internal/$lib"
+done
 ID=io.github.dawidkrynski.Redpoint
 cat > "$APPDIR/$ID.desktop" <<DESK
 [Desktop Entry]

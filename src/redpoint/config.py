@@ -49,7 +49,7 @@ class Config(dict):
         super().__init__(DEFAULTS)
         self.path = path or config_path()
         try:
-            with open(self.path, encoding="utf-8") as f:
+            with open(self.path, encoding="utf-8-sig") as f:  # tolerate a BOM (Notepad, PowerShell)
                 data = json.load(f)
             if isinstance(data, dict):
                 self.update({k: v for k, v in data.items() if k in DEFAULTS})
