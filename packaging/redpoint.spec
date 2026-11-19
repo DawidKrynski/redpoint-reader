@@ -1,5 +1,6 @@
 # PyInstaller spec for Windows (one-file exe), Linux (folder for the AppImage) and macOS (.app).
 # Build from the repository root:  pyinstaller packaging/redpoint.spec
+import os
 import sys
 from pathlib import Path
 
@@ -12,7 +13,7 @@ if sys.platform.startswith("linux"):
     # wl-paste lets us read the PRIMARY selection on Wayland (Qt's wheel cannot).
     import shutil
 
-    wl = shutil.which("wl-paste")
+    wl = os.environ.get("REDPOINT_WL_PASTE") or shutil.which("wl-paste")
     if wl:
         binaries.append((wl, "bin"))
 

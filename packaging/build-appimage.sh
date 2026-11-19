@@ -6,12 +6,27 @@ set -euxo pipefail
 export DEBIAN_FRONTEND=noninteractive
 if command -v apt-get >/dev/null && [ "$(id -u)" = 0 ]; then
   apt-get update -qq
-  apt-get install -y -qq --no-install-recommends ca-certificates curl file binutils wl-clipboard \
+  apt-get install -y -qq --no-install-recommends ca-certificates curl file binutils desktop-file-utils wl-clipboard \
     libegl1 libgl1 libfontconfig1 libfreetype6 libdbus-1-3 libxkbcommon0 libxkbcommon-x11-0 \
     libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
     libxcb-shape0 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libwayland-client0 libwayland-cursor0 \
     libwayland-egl1 libx11-6 libx11-xcb1 libglib2.0-0 libgssapi-krb5-2 >/dev/null
 fi
+# Recent wl-clipboard: KWin 6 and other current compositors only offer ext-data-control,
+# which the wl-clipboard 2.0 in Ubuntu 22.04 does not know.
+WLC=build/wl-clipboard
+if [ ! -x "$WLC/install/bin/wl-paste" ]; then
+  apt-get install -y -qq --no-install-recommends meson ninja-build gcc libc6-dev pkg-config libwayland-dev wayland-protocols xz-utils >/dev/null
+  # ext-data-control needs wayland-protocols >= 1.39 (22.04 ships 1.25)
+  mkdir -p build/wayland-protocols
+  curl -fsSL https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.45/downloads/wayland-protocols-1.45.tar.xz \
+    | tar xJ -C build/wayland-protocols --strip-components=1
+  (cd build/wayland-protocols && meson setup b --prefix=/usr/local -Dtests=false >/dev/null && ninja -C b install >/dev/null)
+  mkdir -p "$WLC"
+  curl -fsSL https://github.com/bugaevc/wl-clipboard/archive/refs/tags/v2.3.0.tar.gz | tar xz -C "$WLC" --strip-components=1
+  (cd "$WLC" && meson setup b --prefix="$PWD/install" --buildtype=release -Dzshcompletiondir=no -Dfishcompletiondir=no >/dev/null && ninja -C b install >/dev/null)
+fi
+export REDPOINT_WL_PASTE="$PWD/$WLC/install/bin/wl-paste"
 command -v uv >/dev/null || { curl -LsSf https://astral.sh/uv/0.9.9/install.sh | sh >/dev/null; export PATH="$HOME/.local/bin:$PATH"; }
 export UV_PROJECT_ENVIRONMENT=/tmp/redpoint-build-venv UV_LINK_MODE=copy
 uv sync --extra dev --python 3.12 -q
