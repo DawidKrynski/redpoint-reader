@@ -34,6 +34,21 @@ def wl_paste_path() -> str | None:
     return shutil.which("wl-paste")
 
 
+KLIPPER_REFILL = "application/x-kde-onlyReplaceEmpty"  # Klipper put back an old history entry
+
+
+def _wl_types(primary: bool) -> list[str]:
+    exe = wl_paste_path()
+    if not exe:
+        return []
+    args = [exe, "--list-types"] + (["--primary"] if primary else [])
+    try:
+        r = subprocess.run(args, capture_output=True, timeout=1.5)
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    return r.stdout.decode("utf-8", errors="replace").split()
+
+
 def _run_wl_paste(primary: bool) -> str | None:
     exe = wl_paste_path()
     if not exe:
@@ -85,6 +100,8 @@ class SelectionGrabber(QObject):
                     if first[0]:  # the watcher reports the current content once at start
                         first[0] = False
                         return
+                    if KLIPPER_REFILL in _wl_types(kind == "primary"):
+                        return  # not a new selection, just Klipper refilling an empty one
                     self.changed[kind] = time.monotonic()
 
                 proc.readyReadStandardOutput.connect(on_output)
@@ -94,6 +111,9 @@ class SelectionGrabber(QObject):
 
             def on_change(mode):
                 kind = "primary" if mode == QClipboard.Mode.Selection else "clipboard"
+                md = QGuiApplication.clipboard().mimeData(mode)
+                if md is not None and KLIPPER_REFILL in md.formats():
+                    return
                 self.changed[kind] = time.monotonic()
 
             QGuiApplication.clipboard().changed.connect(on_change)
@@ -130,10 +150,16 @@ class SelectionGrabber(QObject):
                 # No wl-paste: without focus Qt sees neither PRIMARY nor CLIPBOARD on Wayland.
                 self.needs_focus.emit()
                 return
+            if KLIPPER_REFILL in _wl_types(primary=True):
+                primary = ""
             self._pick(primary, _run_wl_paste(primary=False) or "")
         else:
             cb = QGuiApplication.clipboard()
-            self._pick(cb.text(QClipboard.Mode.Selection), cb.text(QClipboard.Mode.Clipboard))
+            primary = cb.text(QClipboard.Mode.Selection)
+            md = cb.mimeData(QClipboard.Mode.Selection)
+            if md is not None and KLIPPER_REFILL in md.formats():
+                primary = ""
+            self._pick(primary, cb.text(QClipboard.Mode.Clipboard))
 
     def read_focused(self, attempts: int = 10) -> None:
         """Called once our window is active; the compositor's selection offer may lag a bit."""
