@@ -74,8 +74,8 @@ you can set `font_family`, `background`, `text_color`, `focus_color` and `start_
 - Windows 11 (VM): built executable, Notepad selection → shortcut → reading, clipboard restored.
 - Linux: KDE Plasma 6 on Wayland (daily use); AppImage self-test under X11 with shortcut press and
   PRIMARY selection on Ubuntu 22.04 and 24.04, Debian 12, Fedora 42, Arch Linux, openSUSE Tumbleweed and Linux Mint 22.
-- macOS: built and self-tested on GitHub's macOS runners (rendering, IPC, shortcut registration).
-  Not yet tried by hand on a Mac: reports are welcome.
+- macOS 26 (GitHub runner, Apple silicon): app bundle self-test; shortcut pressed through System Events
+  fires; text selected in TextEdit is copied and read. Not yet tried by hand on a physical Mac: reports are welcome.
 
 ## Build from source
 
