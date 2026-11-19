@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "redpoint-reader"
+version = "1.0.0"
+description = "Read selected text word by word (RSVP) with a fixed red focus letter, from any app, with one global shortcut."
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "DawidKrynski" }]
+keywords = ["speed reading", "rsvp", "spritz", "accessibility", "reading", "orp"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: X11 Applications :: Qt",
+  "Environment :: Win32 (MS Windows)",
+  "Environment :: MacOS X",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Topic :: Text Processing",
+  "Topic :: Utilities",
+]
+dependencies = [
+  "PyQt6>=6.5",
+  "jeepney>=0.8; sys_platform == 'linux'",
+]
+
+[project.urls]
+Homepage = "https://github.com/DawidKrynski/redpoint-reader"
+Issues = "https://github.com/DawidKrynski/redpoint-reader/issues"
+
+[project.scripts]
+redpoint = "redpoint.cli:main"
+
+[project.gui-scripts]
+redpoint-gui = "redpoint.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "pyinstaller>=6.10"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/redpoint"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
