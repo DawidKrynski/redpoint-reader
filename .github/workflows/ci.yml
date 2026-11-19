@@ -17,16 +17,18 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python }}
-      - run: uv sync --extra dev
-      - run: uv run pytest -q
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
       - name: Linux system libraries for Qt and the X11 test
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq xvfb xdotool xclip libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 \
             libxcb-keysyms1 libxcb-image0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-randr0
+      - run: uv sync --extra dev
+      - run: uv run pytest -q
+        env:
+          QT_QPA_PLATFORM: offscreen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
       - name: Self-test on X11 (shortcut pressed with xdotool, PRIMARY selection with xclip)
         if: runner.os == 'Linux'
         run: |
