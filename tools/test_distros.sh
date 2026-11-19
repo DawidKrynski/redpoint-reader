@@ -25,7 +25,7 @@ pass=0; fail=0
 for img in "${!SETUP[@]}"; do
   slug=${img//[:\/]/-}
   log="$OUT/$slug.log"
-  docker run --rm -e DISTRO="$img" -e SLUG="$slug" -v "$APPIMAGE":/app/Redpoint.AppImage:ro -v "$OUT":/out "$img" \
+  docker run --rm --init -e DISTRO="$img" -e SLUG="$slug" -v "$APPIMAGE":/app/Redpoint.AppImage:ro -v "$OUT":/out "$img" \
     bash -c "${SETUP[$img]} >/dev/null 2>&1 && xvfb-run -a -s '-screen 0 1600x900x24' bash -c '$TEST'" >"$log" 2>&1
   if [ $? -eq 0 ]; then pass=$((pass+1)); echo "PASS $img"; else fail=$((fail+1)); echo "FAIL $img (see $log)"; fi
 done
