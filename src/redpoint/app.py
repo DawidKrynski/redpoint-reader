@@ -55,12 +55,17 @@ class Redpoint(QObject):
         self.grabber.ready.connect(lambda t, src: log(f"text from {src}: {len(t)} chars {t[:60]!r}"))
         self.grabber.needs_focus.connect(self.reader.wait_for_text)
         self.reader.activated.connect(self.grabber.read_focused)
+        self.reader.focused.connect(self.grabber.restore_clipboard)
+        self.grabber.log.connect(log)
         self.settings: SettingsWindow | None = None
         self.hotkey_result = (H.Result.ERROR, "")
         self.registering = False
 
         autostart.install_linux_desktop_file(icon_png())
         self.backend = self._make_backend()
+        self.grabber.backend = self.backend
+        if self.grabber.wayland:
+            self.grabber.keyboard = self._make_keyboard()
         self.sig.hotkey.connect(self.on_hotkey)
         self.sig.registered.connect(self._on_registered)
         self.register_hotkey(self.cfg["hotkey"])
@@ -82,6 +87,26 @@ class Redpoint(QObject):
         elif backend.name == "kde":
             backend.action_id[3] = tr("Read selection")
         return backend
+
+    def _make_keyboard(self):
+        """Something that can press Ctrl+Insert in the focused app on Wayland."""
+        from . import uinput
+
+        if uinput.available():
+            try:
+                kb = uinput.VirtualKeyboard()
+                log("copy keys: /dev/uinput virtual keyboard")
+                return kb
+            except OSError as e:
+                log(f"uinput unavailable: {e!r}")
+        from .wlinject import RemoteKeyboard
+
+        def save_token(tok: str) -> None:
+            self.cfg["remote_desktop_token"] = tok
+            self.cfg.save()
+
+        log("copy keys: RemoteDesktop portal")
+        return RemoteKeyboard(APP_ID, lambda: self.cfg["remote_desktop_token"], save_token)
 
     def register_hotkey(self, spec: str) -> None:
         try:
@@ -172,6 +197,8 @@ class Redpoint(QObject):
 
     def quit(self) -> None:
         self.grabber.stop()
+        if hasattr(self.grabber.keyboard, "close"):
+            self.grabber.keyboard.close()
         try:
             self.backend.unregister()
         except Exception:  # noqa: BLE001

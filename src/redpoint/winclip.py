@@ -151,8 +151,22 @@ def _key(vk: int, up: bool) -> INPUT:
     return INPUT(type=INPUT_KEYBOARD, u=_INPUTUNION(ki=KEYBDINPUT(wVk=vk, dwFlags=KEYEVENTF_KEYUP if up else 0)))
 
 
-def send_ctrl_c() -> None:
-    seq = (INPUT * 4)(_key(VK_CONTROL, False), _key(VK_C, False), _key(VK_C, True), _key(VK_CONTROL, True))
+VK_INSERT = 0x2D
+TERMINAL_CLASSES = {"ConsoleWindowClass", "CASCADIA_HOSTING_WINDOW_CLASS", "mintty", "VirtualConsoleClass", "PuTTY"}
+user32.GetForegroundWindow.restype = wintypes.HWND
+user32.GetClassNameW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+
+
+def foreground_class() -> str:
+    buf = ctypes.create_unicode_buffer(256)
+    hwnd = user32.GetForegroundWindow()
+    return buf.value if hwnd and user32.GetClassNameW(hwnd, buf, 256) else ""
+
+
+def send_copy() -> None:
+    """Ctrl+C, or Ctrl+Insert in terminals where Ctrl+C would interrupt the running program."""
+    key = VK_INSERT if foreground_class() in TERMINAL_CLASSES else VK_C
+    seq = (INPUT * 4)(_key(VK_CONTROL, False), _key(key, False), _key(key, True), _key(VK_CONTROL, True))
     user32.SendInput(4, seq, ctypes.sizeof(INPUT))
 
 
@@ -161,7 +175,7 @@ def copy_selection(timeout: float = 0.6) -> str | None:
     wait_modifiers_released(1.5)
     saved = snapshot()
     before = user32.GetClipboardSequenceNumber()
-    send_ctrl_c()
+    send_copy()
     end = time.monotonic() + timeout
     while time.monotonic() < end and user32.GetClipboardSequenceNumber() == before:
         time.sleep(0.015)

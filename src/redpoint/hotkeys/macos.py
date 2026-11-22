@@ -78,7 +78,7 @@ class MacBackend(Backend):
         )
 
     def _on_event(self, _call_ref, _event, _data) -> int:
-        self.callback()
+        self._pressed()
         return 0
 
     def register(self, hotkey: Hotkey) -> str:

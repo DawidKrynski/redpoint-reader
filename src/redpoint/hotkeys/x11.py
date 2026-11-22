@@ -169,4 +169,4 @@ class X11Backend(Backend):
                     if ev.type == KeyPress and self._grabbed and ev.xkey.keycode == self._grabbed[0]:
                         fire = True
             if fire:
-                self.callback()
+                self._pressed()

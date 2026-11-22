@@ -107,18 +107,21 @@ class KdeBackend(Backend):
         from jeepney.bus_messages import message_bus
 
         conn = self.listen_conn
-        rule = MatchRule(
-            type="signal",
-            interface="org.kde.kglobalaccel.Component",
-            member="globalShortcutPressed",
-            path=f"/component/{COMPONENT}",
-        )
+        from jeepney import HeaderFields
+
+        rule = MatchRule(type="signal", interface="org.kde.kglobalaccel.Component", path=f"/component/{COMPONENT}")
         conn.send_and_get_reply(message_bus.AddMatch(rule), timeout=3)
+        self.reports_release = True
         with conn.filter(rule) as queue:
             while True:
                 try:
                     sig = conn.recv_until_filtered(queue)
                 except Exception:  # noqa: BLE001
                     return
-                if sig.body[0] == COMPONENT and sig.body[1] == ACTION:
-                    self.callback()
+                if len(sig.body) < 2 or sig.body[0] != COMPONENT or sig.body[1] != ACTION:
+                    continue
+                member = sig.header.fields.get(HeaderFields.member)
+                if member == "globalShortcutPressed":
+                    self._pressed()
+                elif member == "globalShortcutReleased":
+                    self.released.set()

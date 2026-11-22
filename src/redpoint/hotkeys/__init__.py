@@ -8,6 +8,7 @@ physical Control key (also on macOS).
 from __future__ import annotations
 
 import sys
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -77,6 +78,14 @@ class Backend:
 
     def __init__(self, callback: Callable[[], None]):
         self.callback = callback
+        # Set when the shortcut keys are let go (backends that can tell); a simulated copy
+        # must not run while the user still holds the shortcut's modifiers.
+        self.released = threading.Event()
+        self.reports_release = False
+
+    def _pressed(self) -> None:
+        self.released.clear()
+        self.callback()
 
     def register(self, hotkey: Hotkey) -> str:
         return Result.MANUAL

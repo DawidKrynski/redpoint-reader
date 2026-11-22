@@ -27,6 +27,7 @@ DEFAULTS: dict = {
     "text_color": "#ebebeb",
     "focus_color": "#eb2d2d",
     "welcome_shown": False,
+    "remote_desktop_token": "",  # Wayland: lets the desktop skip the permission dialog next time
 }
 
 

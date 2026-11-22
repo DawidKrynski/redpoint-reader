@@ -39,7 +39,8 @@ def target_screen():
 
 
 class ReaderWindow(QWidget):
-    activated = pyqtSignal()
+    activated = pyqtSignal()  # active while waiting for text (Wayland focus read)
+    focused = pyqtSignal()  # every time the window becomes active
     closed = pyqtSignal()
 
     def __init__(self, config: Config):
@@ -169,8 +170,10 @@ class ReaderWindow(QWidget):
 
     # --- events
     def event(self, e):
-        if e.type() == QEvent.Type.WindowActivate and self.waiting:
-            QTimer.singleShot(60, self.activated.emit)
+        if e.type() == QEvent.Type.WindowActivate:
+            QTimer.singleShot(0, self.focused.emit)
+            if self.waiting:
+                QTimer.singleShot(60, self.activated.emit)
         return super().event(e)
 
     def keyPressEvent(self, e):

@@ -75,7 +75,7 @@ class WindowsBackend(Backend):
         registered = False
         while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
             if msg.message == WM_HOTKEY and msg.wParam == HOTKEY_ID:
-                self.callback()
+                self._pressed()
             elif msg.message == WM_APP_REGISTER:
                 if registered:
                     user32.UnregisterHotKey(None, HOTKEY_ID)

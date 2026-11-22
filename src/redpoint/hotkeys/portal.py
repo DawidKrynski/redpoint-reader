@@ -130,14 +130,21 @@ class PortalBackend(Backend):
         from jeepney.bus_messages import message_bus
 
         conn = self._conn
-        rule = MatchRule(type="signal", interface=IFACE, member="Activated", path=PORTAL_PATH)
+        from jeepney import HeaderFields
+
+        rule = MatchRule(type="signal", interface=IFACE, path=PORTAL_PATH)
         conn.send_and_get_reply(message_bus.AddMatch(rule), timeout=3)
+        self.reports_release = True
         with conn.filter(rule) as queue:
             while True:
                 try:
                     sig = conn.recv_until_filtered(queue)
                 except Exception:  # noqa: BLE001 - connection closed
                     return
-                session, shortcut_id = sig.body[0], sig.body[1]
-                if session == self._session and shortcut_id == SHORTCUT_ID:
-                    self.callback()
+                if len(sig.body) < 2 or sig.body[0] != self._session or sig.body[1] != SHORTCUT_ID:
+                    continue
+                member = sig.header.fields.get(HeaderFields.member)
+                if member == "Activated":
+                    self._pressed()
+                elif member == "Deactivated":
+                    self.released.set()
