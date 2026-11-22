@@ -10,7 +10,7 @@ jump along the line.
 ![Redpoint reading](docs/images/reader.png)
 
 - Works in any app: browser, PDF viewer, e-mail, chat, editor.
-- One global shortcut, **Ctrl+Alt+Space** by default (Ctrl+Option+R on macOS), which you can change.
+- Select text and press one global shortcut, **Ctrl+Alt+Space** by default (Ctrl+Option+R on macOS), which you can change.
 - Smart timing: longer words, numbers, commas, sentence and paragraph ends get more time,
   and the first words are a little slower so you can settle in.
 - Keyboard and mouse control, a tray icon, start at login, English and Polish UI.
@@ -54,14 +54,21 @@ From a terminal: `redpoint file.txt`, `some-command | redpoint -`, `redpoint --c
 
 ## How it gets the selected text
 
-| Platform | Shortcut | Selection |
+Select, press the shortcut, read: Redpoint copies the selection itself and then puts your
+previous clipboard back exactly as it was, with every format (images, rich text, files).
+If nothing is selected, it reads the clipboard, so *copy + shortcut* works too.
+
+| Platform | Shortcut | Copying the selection |
 |---|---|---|
-| Windows | `RegisterHotKey` | simulated Ctrl+C, then your previous clipboard content is put back |
-| Linux, KDE Plasma (X11 and Wayland) | KDE global shortcuts (shows up in System Settings → Shortcuts) | PRIMARY selection, no copying |
-| Linux, other X11 desktops | `XGrabKey` | PRIMARY selection |
-| Linux, other Wayland desktops | XDG GlobalShortcuts portal (GNOME 48+, Hyprland, …): the desktop asks you to confirm once | PRIMARY selection through the bundled `wl-paste` |
-| Linux, Wayland without the portal (e.g. Sway) | bind a custom shortcut to `redpoint --read` in your compositor config; the settings window shows the exact command | PRIMARY selection |
-| macOS | Carbon hot key | simulated Cmd+C (needs **Accessibility** permission), previous clipboard text restored |
+| Windows | `RegisterHotKey` | simulated Ctrl+C (Ctrl+Insert in terminals, so a running program is never interrupted) |
+| Linux, KDE Plasma | KDE global shortcuts (also listed in System Settings → Shortcuts) | see Wayland / X11 below |
+| Linux, Wayland | KDE, or the XDG GlobalShortcuts portal (GNOME 48+, Hyprland, …; the desktop asks once) | a fresh PRIMARY selection when the app sets one; otherwise a simulated **Ctrl+Insert** through a virtual keyboard (`/dev/uinput`, available to the logged-in user on most desktops) or, without it, the RemoteDesktop portal (the desktop asks once) |
+| Linux, X11 | `XGrabKey` | the PRIMARY selection, which every X11 app sets |
+| Wayland without a shortcut portal (e.g. Sway) | bind `redpoint --read` in your compositor config; the settings window shows the exact command | as above |
+| macOS | Carbon hot key | simulated Cmd+C (needs the **Accessibility** permission) |
+
+Ctrl+Insert is the standard copy key in Qt, GTK, Chromium/Electron, Firefox and LibreOffice,
+and unlike Ctrl+C it does nothing harmful in a terminal.
 
 ## Settings file
 

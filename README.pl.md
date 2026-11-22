@@ -33,7 +33,7 @@ ustawienia otworzysz z ikony w zasobniku albo uruchamiając program ponownie.
 
 Zaznacz tekst, naciśnij skrót, czytaj. Spacja/klik - pauza (z czasem do końca), ↑/↓ lub kółko - tempo
 (zapamiętywane), ←/→ - zdanie, Shift+←/→ - słowo, Home - od początku, Esc/prawy klik/ponowny skrót - zamknij.
-Bez zaznaczenia czyta schowek, więc *kopiuj + skrót* działa zawsze.
+Program sam kopiuje zaznaczenie i potem przywraca poprzednią zawartość schowka w całości (także obrazki). Bez zaznaczenia czyta schowek, więc *kopiuj + skrót* też działa.
 
 Szczegóły techniczne, testy i budowanie: [README po angielsku](README.md).
 
